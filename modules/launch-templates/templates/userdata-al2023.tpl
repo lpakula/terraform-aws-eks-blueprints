@@ -1,40 +1,22 @@
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="//"
-
---//
-Content-Type: text/x-shellscript; charset="us-ascii"
-#!/bin/bash
-set -ex
-
-# User-supplied pre userdata code
+---
+apiVersion: node.eks.aws/v1alpha1
+kind: NodeConfig
+spec:
+  cluster:
+    name: ${eks_cluster_id}
+    apiServerEndpoint: ${cluster_endpoint}
+    certificateAuthority: ${cluster_ca_base64}
+    cidr: ${service_ipv4_cidr != "" ? service_ipv4_cidr : "10.100.0.0/16"}
+%{ if kubelet_extra_args != "" }
+  kubelet:
+    flags:
+      - ${kubelet_extra_args}
+%{ endif }
+%{ if pre_userdata != "" }
+---
 ${pre_userdata}
-
-if [ ${format_mount_nvme_disk} = true ];then
-echo "Format and Mount NVMe Disks if available"
-IDX=1
-DEVICES=$(lsblk -o NAME,TYPE -dsn | awk '/disk/ {print $1}')
-for DEV in $DEVICES
-do
-  mkfs.xfs /dev/$${DEV}
-  mkdir -p /local$${IDX}
-
-  echo /dev/$${DEV} /local$${IDX} xfs defaults,noatime 1 2 >> /etc/fstab
-
-  IDX=$(($${IDX} + 1))
-done
-mount -a
-fi
-
-# Install EKS nodegroup package (AL2023 specific)
-dnf update -y
-dnf install -y amazon-eks-nodegroup
-
-# Initialize the node with nodeadm (AL2023 method)
-/usr/bin/nodeadm init --cluster-name '${eks_cluster_id}' \
-  --cluster-endpoint '${cluster_endpoint}' \
-  --cluster-ca-data '${cluster_ca_base64}'
-
-# User-supplied post userdata code
+%{ endif }
+%{ if post_userdata != "" }
+---
 ${post_userdata}
-
---//-- 
+%{ endif } 
