@@ -6,7 +6,7 @@ spec:
     name: ${eks_cluster_id}
     apiServerEndpoint: ${cluster_endpoint}
     certificateAuthority: ${cluster_ca_base64}
-    cidr: ${service_ipv4_cidr != "" ? service_ipv4_cidr : "10.100.0.0/16"}
+    cidr: ${service_ipv4_cidr != "" ? service_ipv4_cidr : "172.20.0.0/16"}
 %{ if kubelet_extra_args != "" }
   kubelet:
     flags:
