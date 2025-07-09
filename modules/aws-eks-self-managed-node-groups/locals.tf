@@ -54,7 +54,6 @@ locals {
   windows_server_version = local.self_managed_node_group["windows_server_version"]
 
   predefined_ami_names = {
-    amazonlinux2eks = "amazon-eks-node-${var.context.cluster_version}-*"
     al2023          = "amazon-eks-node-al2023-x86_64-standard-${var.context.cluster_version}-*"
     bottlerocket    = "bottlerocket-aws-k8s-${var.context.cluster_version}-x86_64-*"
     windows         = "Windows_Server-${local.windows_server_version}-English-Core-EKS_Optimized-${var.context.cluster_version}-*"
